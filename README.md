@@ -6,7 +6,12 @@
 - Pytorch : Stable (1.5) - Linux - Python - CUDA (10.2)
 - Using Single GPU (not tested on cpu only)
 
+
 ## 1. Explain about Implementation
+- model.py : vgg11, vgg11_bn, vgg13, vgg13_bn, vgg16, vgg16_bn, vgg19, vgg19_bn
+- train.py : train model
+- utils.py : count right prediction, save checkpoints
+- Add adaptive average pooling layer before FC layer for shape issues
 
 
 ## 2. Brief Summary of *'Very Deep Convolutional Networks for Large-scale Image Recognition'*
