@@ -36,11 +36,10 @@
 - acitivation function : ReLU
 
 ### 2.4. Classification Task
-#### 2.4.1. Train
-- Data Augmentation
+#### 2.4.1. Train  
+- Data Pre-processing
   * Random horizontal flipping
   * Random RGB color shift
-- Data Pre-processing
   * Input train image scale 'S'
     * Fix-scale : 256, 384
     * Multi-scale : [256, 512]
