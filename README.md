@@ -16,7 +16,7 @@
 
 ## 2. Brief Summary of *'Very Deep Convolutional Networks for Large-scale Image Recognition'*
 
-### 2.1 Goal
+### 2.1. Goal
 - Improve performance of image classification and localization on ILSVRC-2014
 
 ### 2.2. Intuition
@@ -29,22 +29,19 @@
   * val : 50 K
   * test : 100 K
 
-### 2.3. VGGNet Configurations
+### 2.4. VGGNet Configurations
 ![Figure 1](./Figures/Figure_01.png)
 - conv3 : window size 3 * 3, stride 1, padding 1
 - maxpool : window size 2 * 2, stride 2
 - acitivation function : ReLU
 
-### 2.4. Classification Task
-#### 2.4.1. Train  
+### 2.5. Classification Task
+#### 2.5.1. Train  
 - Data Pre-processing
+  * Random resize : resize with shorter side randomly sampled in [256, 512]
+  * Random crop 224 * 224
   * Random horizontal flipping
   * Random RGB color shift
-  * Input train image scale 'S'
-    * Fix-scale : 256, 384
-    * Multi-scale : [256, 512]
-    * Multi-scale > Fix-scale : effect of data augmentation by scale jittering
-  * Random crop
   * Normalization : subtract mean RGB value computed on training dataset from each pixel
 - Train Details
   * Multinomial logistic regression objective
@@ -57,14 +54,10 @@
   * Dropout : 0.5 ratio for first 2 FC layer
   * Epoch : 74 (370k iterations)
 
-#### 2.4.2 Test
+#### 2.5.2. Test
 - Data Pre-processing
-  * Input test image scale 'Q'
-    * Single-scale : 256, 384
-    * Multi-scale : (224, 256, 288), (256, 384, 512), (352, 384, 416)
-    * Multi-scale > Single-scale : scale jittering at test time leads to better performance
-  * Multi-crop & dense evaluation
-    * Multi-crop + dense > multi-crop > dense : due to a different treatment of convolution boundary conditions
+  * Resize : resize with shorter side (224, 256, 288), (256, 384, 512), (352, 384, 416)
+  * Multi-crop + dense evaluation
 - Network Change
   * FC layers -> convolutional layers
     * First FC layer -> 7 × 7 convolution layer
@@ -74,7 +67,7 @@
   * Combine the outputs of several models by averaging their soft-max class posteriors
   * Improves the performance due to complementarity of the models
 
-### 2.5. Localization Task : bounding box + classification
+### 2.6. Localization Task : bounding box + classification
 - Bounding box prediction
   * 4-D vector : center coordinates, width, and height
   * Single-class Regression (SCR) : bounding box prediction is shared across all classes
