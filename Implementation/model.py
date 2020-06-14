@@ -78,20 +78,15 @@ def make_layers(cfg, batch_norm=False):
 
 
 def vgg(depth, batch_norm=True, num_classes=1000, pretrained=False):
-    if pretrained:
-        model = VGG(make_layers(cfgs[depth], batch_norm=batch_norm), 1000, init_weights=False)
-    else:
-        model = VGG(make_layers(cfgs[depth], batch_norm=batch_norm), num_classes, init_weights=True)
+    
+    model = VGG(make_layers(cfgs[depth], batch_norm=batch_norm), num_classes, init_weights=True)
+    arch = 'vgg' + str(depth)
+    if batch_norm == True: arch += '_bn'
 
-    if pretrained:
-        arch = 'vgg' + str(depth)
-        if batch_norm == True: arch += '_bn'
+    if pretrained and (num_classes == 1000) and (arch in pretrained_model_urls):
         state_dict = load_state_dict_from_url(pretrained_model_urls[arch], progress=True)
         model.load_state_dict(state_dict)
-        if num_classes != 1000:
-            num_ftrs = model.classifier[6].in_features
-            model.classifier[6] = nn.Linear(num_ftrs,num_classes)
-            nn.init.normal_(model.classifier[6].weight, 0, 0.01)
-            nn.init.constant_(model.classifier[6].bias, 0)
+    else:
+        raise ValueError('No pretrained model in resnet {} model with class number {}'.format(depth, num_classes))
 
     return model
