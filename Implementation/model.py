@@ -77,7 +77,7 @@ def make_layers(cfg, batch_norm=False):
     return nn.Sequential(*layers)
 
 
-def vgg(depth, batch_norm=True, num_classes=1000, pretrained=False):
+def vgg(depth, batch_norm, num_classes, pretrained):
     
     model = VGG(make_layers(cfgs[depth], batch_norm=batch_norm), num_classes, init_weights=True)
     arch = 'vgg' + str(depth)
@@ -86,7 +86,7 @@ def vgg(depth, batch_norm=True, num_classes=1000, pretrained=False):
     if pretrained and (num_classes == 1000) and (arch in pretrained_model_urls):
         state_dict = load_state_dict_from_url(pretrained_model_urls[arch], progress=True)
         model.load_state_dict(state_dict)
-    else:
-        raise ValueError('No pretrained model in resnet {} model with class number {}'.format(depth, num_classes))
+    elif pretrained:
+        raise ValueError('No pretrained model in vggnet {} model with class number {}'.format(depth, num_classes))
 
     return model

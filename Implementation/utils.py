@@ -16,9 +16,9 @@ def save_checkpoint(depth, batch_norm, num_classes, pretrained, epoch, state):
         filename += '_BN'
     filename += '_' + '0'*(5-len(str(num_classes))) + str(num_classes)
     if pretrained == True:
-        filename += 'T_'
+        filename += '_T'
     else:
-        filename += 'F_'
+        filename += '_F'
     filename += '_' + '0'*(3-len(str(epoch))) + str(epoch)
     filename += '.pth.tar'
     torch.save(state, filename)

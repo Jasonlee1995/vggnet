@@ -8,9 +8,9 @@ import torch.optim as optim
 
 torch.manual_seed(0)
 
-
 class VGGNet():
-    def __init__(self, depth=19, batch_norm=True, num_classes=1000, pretrained=False, gpu_id=0, print_freq=10):
+    def __init__(self, depth=19, batch_norm=True, num_classes=1000, pretrained=False, 
+                 gpu_id=0, print_freq=10, epoch_print=10, epoch_save=50):
         
         self.depth = depth
         self.batch_norm = batch_norm
@@ -18,6 +18,8 @@ class VGGNet():
         self.pretrained = pretrained
         self.gpu = gpu_id
         self.print_freq = print_freq
+        self.epoch_print = epoch_print
+        self.epoch_save = epoch_save
         
         torch.cuda.set_device(self.gpu)
         
@@ -28,7 +30,7 @@ class VGGNet():
         else:
             print('=> Create model with depth : {}, batch_norm : {}'.format(self.depth, self.batch_norm))
         
-        model = vgg(self.depth, self.batch_norm, self.num_classes, pretrained)
+        model = vgg(self.depth, self.batch_norm, self.num_classes, self.pretrained)
         self.model = model.cuda(self.gpu)
         
         self.train_losses = list()
@@ -62,7 +64,8 @@ class VGGNet():
         
         # Train
         for epoch in range(start_epoch, epochs):
-            print('Epoch {} Started...'.format(epoch+1))
+            if epoch % self.epoch_print == 0:
+                print('Epoch {} Started...'.format(epoch+1))
             for i, (X, y) in enumerate(train_data):
                 X, y = X.cuda(self.gpu, non_blocking=True), y.cuda(self.gpu, non_blocking=True)
                 output = self.model(X)
@@ -72,7 +75,7 @@ class VGGNet():
                 loss.backward()
                 optimizer.step()
                 
-                if (i+1)%self.print_freq == 0:
+                if (i+1) % self.print_freq == 0:
                     train_acc = 100 * count(output, y) / y.size(0)
                     test_acc, test_loss = self.test(test_data)
                     
@@ -81,11 +84,12 @@ class VGGNet():
                     self.test_losses.append(test_loss)
                     self.test_acc.append(test_acc)
                     
-                    print('Iteration : {} - Train Loss : {:.2f}, Test Loss : {:.2f}, '
-                          'Train Acc : {:.2f}, Test Acc : {:.2f}'.format(i+1, loss.item(), test_loss, train_acc, test_acc))
+                    if epoch % self.epoch_print == 0:
+                        print('Iteration : {} - Train Loss : {:.2f}, Test Loss : {:.2f}, '
+                              'Train Acc : {:.2f}, Test Acc : {:.2f}'.format(i+1, loss.item(), test_loss, train_acc, test_acc))
                     
             scheduler.step()
-            if epoch % 50 == 0:
+            if epoch % self.epoch_save == 0:
                 save_checkpoint(self.depth, self.batch_norm, self.num_classes, self.pretrained, epoch,
                                 state={'epoch': epoch+1, 'state_dict':self.model.state_dict(),
                                        'optimizer':optimizer.state_dict()})
@@ -111,8 +115,3 @@ class VGGNet():
                 total += y.size(0)
         
         return (100*correct/total, sum(losses)/len(losses))
-
-#             if i % self.print_freq == 0:
-#                 print('{} Batch - Loss : {:.6f}, Acc : {:.6f}'.format(i+1, loss, acc))
-
-#         print('Accuracy : {:.6f}, Average Loss : {:.6f}'.format(100*correct/total, sum(losses)/len(losses)))
