@@ -39,13 +39,17 @@ class VGGNet():
         self.test_acc = list()
         
         
-    def train(self, train_data, test_data, resume=False, start_epoch=0, epochs=74, lr=0.01, momentum=0.9, weight_decay=0.0005):
+    def train(self, train_data, test_data, resume=False, save=False, start_epoch=0, epochs=74, 
+              lr=0.01, momentum=0.9, weight_decay=0.0005, milestones=False):
         # Model to Train Mode
         self.model.train()
         
         # Set Optimizer and Scheduler
         optimizer = optim.SGD(self.model.parameters(), lr, momentum=momentum, weight_decay=weight_decay)
-        scheduler = optim.lr_scheduler.MultiStepLR(optimizer, [epochs//3, epochs*2//3], gamma=0.1)
+        if milestones:
+            scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones, gamma=0.1)
+        else:
+            scheduler = optim.lr_scheduler.MultiStepLR(optimizer, [epochs//2, epochs*3//4], gamma=0.1)
         
         # Optionally Resume from Checkpoint
         if resume:
@@ -84,12 +88,15 @@ class VGGNet():
                     self.test_losses.append(test_loss)
                     self.test_acc.append(test_acc)
                     
+                    self.model.train()
+                    
                     if epoch % self.epoch_print == 0:
                         print('Iteration : {} - Train Loss : {:.2f}, Test Loss : {:.2f}, '
-                              'Train Acc : {:.2f}, Test Acc : {:.2f}'.format(i+1, loss.item(), test_loss, train_acc, test_acc))
+                              'Train Acc : {:.2f}, Test Acc : {:.2f}'.format(i+1, loss.item(), test_loss, 
+                                                                             train_acc, test_acc))
                     
             scheduler.step()
-            if epoch % self.epoch_save == 0:
+            if save and (epoch % self.epoch_save == 0):
                 save_checkpoint(self.depth, self.batch_norm, self.num_classes, self.pretrained, epoch,
                                 state={'epoch': epoch+1, 'state_dict':self.model.state_dict(),
                                        'optimizer':optimizer.state_dict()})
