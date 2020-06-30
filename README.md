@@ -31,9 +31,9 @@
 
 ### 2.4. VGGNet Configurations
 ![Figure 1](./Figures/Figure_01.png)
-- conv3 : window size 3 * 3, stride 1, padding 1
-- maxpool : window size 2 * 2, stride 2
-- acitivation function : ReLU
+- Conv3 : window size 3 * 3, stride 1, padding 1
+- Maxpool : window size 2 * 2, stride 2
+- Acitivation function : ReLU
 
 ### 2.5. Classification Task
 #### 2.5.1. Train  
